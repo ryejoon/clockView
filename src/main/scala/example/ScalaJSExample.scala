@@ -1,6 +1,7 @@
 package example
 
 import org.scalajs.dom
+import org.scalajs.dom.raw.MouseEvent
 import org.scalajs.dom.{CanvasRenderingContext2D, html}
 
 import scala.scalajs.js
@@ -29,7 +30,8 @@ object ScalaJSExample {
                     .asInstanceOf[CanvasRenderingContext2D]
     val xCenter = 500;
     val yCenter = 300;
-    val clockRadius = 200
+    val clockRadius = 100
+    val futureShowHours = 10
 
     val center = Point(xCenter, yCenter);
 
@@ -37,24 +39,41 @@ object ScalaJSExample {
     initClockTemplate
     drawCurrentTime
     drawComponent(new Time(3, 30), new Time(4, 30), 170)
-    drawCurrentTime
+    canvas.addEventListener("click", (t:MouseEvent) => {
+      println("event!" + t.`type` + ":" + t.clientX + "," + t.clientY)
+    }, false)
+
+    canvas.addEventListener("mousemove", (t:MouseEvent) => {
+      println("event!" + t.`type` + ":" + t.clientX + "," + t.clientY)
+    }, false)
     //dom.setInterval(drawCurrentTime _, 1000)
 
     def drawCurrentTime: Unit = {
       ctx.beginPath()
 
       val date = new js.Date()
-      val hourPoint = hourToPoint(date.getHours() % 12, date.getMinutes(), 80)
+      val hourPoint = hourToPoint(date.getHours() % 12, date.getMinutes(), 50)
       ctx.moveTo(center.x, center.y);
       ctx.lineTo(hourPoint.x, hourPoint.y)
       ctx.strokeStyle = "red"
       ctx.stroke()
 
-      val minutePoint = minuteOrSecondToPoint(date.getMinutes(), 120)
+      val minutePoint = minuteOrSecondToPoint(date.getMinutes(), 70)
+      ctx.beginPath()
       ctx.moveTo(center.x, center.y);
       ctx.lineTo(minutePoint.x, minutePoint.y)
       ctx.strokeStyle = "red"
       ctx.stroke()
+
+      ctx.beginPath()
+      val futurePoint = hourToPoint((date.getHours() + futureShowHours) % 12, date.getMinutes(), clockRadius)
+      ctx.moveTo(center.x, center.y);
+      ctx.lineTo(futurePoint.x, futurePoint.y)
+      ctx.strokeStyle = "black"
+
+      ctx.setLineDash(scalajs.js.Array(5.0));
+      ctx.stroke()
+      ctx.setLineDash(null)
 
 /*      val secondPoint = minuteOrSecondToPoint(date.getSeconds(), 150)
       ctx.moveTo(center.x, center.y);
@@ -92,6 +111,7 @@ object ScalaJSExample {
       ctx.beginPath()
       ctx.arc(center.x, center.y, arc.radius, arc.startAngle, arc.endAngle)
       ctx.strokeStyle = "blue"
+      ctx.lineWidth = 5
       ctx.stroke()
     }
 
@@ -99,14 +119,14 @@ object ScalaJSExample {
       val hourBarLength = 10
 
       drawCircle(clockRadius, "black")
-      drawCircle(10, "black")
+      drawCircle(5, "black")
 
       for (i <- 0 to 11) {
         val barFrom = hourToPoint(i, 0, clockRadius - hourBarLength)
         val barUntil = hourToPoint(i, 0, clockRadius)
         ctx.moveTo(barFrom.x, barFrom.y);
         ctx.lineTo(barUntil.x, barUntil.y)
-        ctx.strokeStyle = "red"
+        ctx.strokeStyle = "black"
         ctx.stroke()
       }
     }
