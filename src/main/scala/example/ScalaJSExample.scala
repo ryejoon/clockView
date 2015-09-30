@@ -5,6 +5,7 @@ import org.scalajs.dom.raw.MouseEvent
 import org.scalajs.dom.{CanvasRenderingContext2D, html}
 
 import scala.scalajs.js
+import scala.scalajs.js.Date
 import scala.scalajs.js.annotation.JSExport
 
 case class Point(x: Int, y: Int){
@@ -13,10 +14,6 @@ case class Point(x: Int, y: Int){
 }
 
 case class Arc(startAngle: Double, endAngle: Double, radius: Int) {
-
-}
-
-case class Time(hour: Int, minute: Int) {
 
 }
 
@@ -38,14 +35,17 @@ object ScalaJSExample {
 
     initClockTemplate
     drawCurrentTime
-    drawComponent(new Time(3, 30), new Time(4, 30), 170)
-    canvas.addEventListener("click", (t:MouseEvent) => {
+    EventDataProvider.eventList.foreach(e => {
+      drawEvent(e)
+    })
+
+    /*canvas.addEventListener("click", (t:MouseEvent) => {
       println("event!" + t.`type` + ":" + t.clientX + "," + t.clientY)
     }, false)
 
     canvas.addEventListener("mousemove", (t:MouseEvent) => {
       println("event!" + t.`type` + ":" + t.clientX + "," + t.clientY)
-    }, false)
+    }, false)*/
     //dom.setInterval(drawCurrentTime _, 1000)
 
     def drawCurrentTime: Unit = {
@@ -66,7 +66,7 @@ object ScalaJSExample {
       ctx.stroke()
 
       ctx.beginPath()
-      val futurePoint = hourToPoint((date.getHours() + futureShowHours) % 12, date.getMinutes(), clockRadius)
+      val futurePoint = hourToPoint((date.getHours() + futureShowHours) % 12, date.getMinutes(), clockRadius + 100)
       ctx.moveTo(center.x, center.y);
       ctx.lineTo(futurePoint.x, futurePoint.y)
       ctx.strokeStyle = "black"
@@ -75,16 +75,12 @@ object ScalaJSExample {
       ctx.stroke()
       ctx.setLineDash(null)
 
+
 /*      val secondPoint = minuteOrSecondToPoint(date.getSeconds(), 150)
       ctx.moveTo(center.x, center.y);
       ctx.lineTo(secondPoint.x, secondPoint.y)
       ctx.strokeStyle = "red"
       ctx.stroke()*/
-    }
-
-
-    def timeToRadian(clockHour: Integer, minute: Integer): Double = {
-      (clockHour * Math.PI / 6) + (minute * Math.PI / 360) - (Math.PI / 2)
     }
 
     def hourToPoint(clockHour : Integer, minute : Integer, radius : Integer): Point = {
@@ -94,10 +90,6 @@ object ScalaJSExample {
       return Point(center.x + xLength.toInt, center.y + yLength.toInt)
     }
 
-    def timeToArc(fromTime : Time, untilTime : Time, radius : Int): Arc = {
-      return Arc(timeToRadian(fromTime.hour, fromTime.minute), timeToRadian(untilTime.hour, untilTime.minute), radius)
-    }
-
     def minuteOrSecondToPoint(minute : Int, radius : Int): Point = {
       val piPos = (minute * Math.PI / 30) - (Math.PI / 2)
       val xLength = radius * Math.cos(piPos)
@@ -105,9 +97,18 @@ object ScalaJSExample {
       return Point(center.x + xLength.toInt, center.y + yLength.toInt)
     }
 
-    def drawComponent(from: Time, until: Time, radius : Int): Unit = {
+    def drawComponent(from: Date, until: Date, radius : Int): Unit = {
       ctx.moveTo(center.x, center.y)
       val arc = timeToArc(from, until, radius)
+      ctx.beginPath()
+      ctx.arc(center.x, center.y, arc.radius, arc.startAngle, arc.endAngle)
+      ctx.strokeStyle = "blue"
+      ctx.lineWidth = 5
+      ctx.stroke()
+    }
+
+    def drawArc(arc: Arc): Unit = {
+      ctx.moveTo(center.x, center.y)
       ctx.beginPath()
       ctx.arc(center.x, center.y, arc.radius, arc.startAngle, arc.endAngle)
       ctx.strokeStyle = "blue"
@@ -138,5 +139,19 @@ object ScalaJSExample {
       ctx.arc(center.x, center.y, radius, 0, 2 * Math.PI)
       ctx.stroke()
     }
+
+
+    def drawEvent(ev: Event): Unit = {
+      drawComponent(ev.dtStart, ev.dtEnd, 100 + (Math.random() * 30).toInt)
+    }
+  }
+
+
+  def timeToArc(from : Date, until : Date, radius : Int): Arc = {
+    return Arc(timeToRadian(from.getHours(), from.getMinutes()), timeToRadian(until.getHours(), until.getMinutes()), radius)
+  }
+
+  def timeToRadian(clockHour: Integer, minute: Integer): Double = {
+    (clockHour * Math.PI / 6) + (minute * Math.PI / 360) - (Math.PI / 2)
   }
 }
