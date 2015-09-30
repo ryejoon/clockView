@@ -15,9 +15,10 @@ object ScalaJSExample {
     ClockRenderer.setContent(ctx)
     ClockRenderer.initClockTemplate
     ClockRenderer.drawCurrentTime
-    EventDataProvider.eventList.foreach(e => {
-      ClockRenderer.drawEvent(e)
-    })
+
+    EventDataProvider.eventList.foreach(e => RadiusEventMap.addEvent(e, ClockRenderer.clockRadius, ClockRenderer.limitRadian))
+    println(RadiusEventMap.keys)
+    RadiusEventMap.values.flatMap(l => l).foreach(ae => ClockRenderer.drawArcEvent(ae))
 
     /*canvas.addEventListener("click", (t:MouseEvent) => {
       println("event!" + t.`type` + ":" + t.clientX + "," + t.clientY)
