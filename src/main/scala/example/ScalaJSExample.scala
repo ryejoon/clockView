@@ -11,6 +11,14 @@ case class Point(x: Int, y: Int){
   def /(d: Int) = Point(x / d, y / d)
 }
 
+case class Arc(startAngle: Double, endAngle: Double, radius: Int) {
+
+}
+
+case class Time(hour: Int, minute: Int) {
+
+}
+
 @JSExport
 object ScalaJSExample {
   @JSExport
@@ -20,15 +28,15 @@ object ScalaJSExample {
     val ctx = canvas.getContext("2d")
                     .asInstanceOf[CanvasRenderingContext2D]
     val xCenter = 500;
-    val yCenter = 500;
+    val yCenter = 300;
+    val clockRadius = 200
 
     val center = Point(xCenter, yCenter);
 
 
-    drawCircle(10, "black")
-    drawCircle(200, "black")
+    initClockTemplate
     drawCurrentTime
-    drawComponent("Test123")
+    drawComponent(new Time(3, 30), new Time(4, 30), 170)
     drawCurrentTime
     //dom.setInterval(drawCurrentTime _, 1000)
 
@@ -56,27 +64,52 @@ object ScalaJSExample {
     }
 
 
+    def timeToRadian(clockHour: Integer, minute: Integer): Double = {
+      (clockHour * Math.PI / 6) + (minute * Math.PI / 360) - (Math.PI / 2)
+    }
+
     def hourToPoint(clockHour : Integer, minute : Integer, radius : Integer): Point = {
-      val piPos = (clockHour * Math.PI / 6) + (minute * Math.PI / 360) - (Math.PI / 2)
+      val piPos = timeToRadian(clockHour, minute)
       val xLength = radius * Math.cos(piPos)
       val yLength = radius * Math.sin(piPos)
       return Point(center.x + xLength.toInt, center.y + yLength.toInt)
     }
 
-    def minuteOrSecondToPoint(minute : Integer, radius : Integer): Point = {
+    def timeToArc(fromTime : Time, untilTime : Time, radius : Int): Arc = {
+      return Arc(timeToRadian(fromTime.hour, fromTime.minute), timeToRadian(untilTime.hour, untilTime.minute), radius)
+    }
+
+    def minuteOrSecondToPoint(minute : Int, radius : Int): Point = {
       val piPos = (minute * Math.PI / 30) - (Math.PI / 2)
       val xLength = radius * Math.cos(piPos)
       val yLength = radius * Math.sin(piPos)
       return Point(center.x + xLength.toInt, center.y + yLength.toInt)
     }
 
-    def drawComponent(componentId : String): Unit = {
+    def drawComponent(from: Time, until: Time, radius : Int): Unit = {
+      ctx.moveTo(center.x, center.y)
+      val arc = timeToArc(from, until, radius)
       ctx.beginPath()
-      ctx.arc(center.x, center.y, 50, 1.5 * Math.PI, 2 * Math.PI)
+      ctx.arc(center.x, center.y, arc.radius, arc.startAngle, arc.endAngle)
       ctx.strokeStyle = "blue"
       ctx.stroke()
     }
 
+    def initClockTemplate: Unit = {
+      val hourBarLength = 10
+
+      drawCircle(clockRadius, "black")
+      drawCircle(10, "black")
+
+      for (i <- 0 to 11) {
+        val barFrom = hourToPoint(i, 0, clockRadius - hourBarLength)
+        val barUntil = hourToPoint(i, 0, clockRadius)
+        ctx.moveTo(barFrom.x, barFrom.y);
+        ctx.lineTo(barUntil.x, barUntil.y)
+        ctx.strokeStyle = "red"
+        ctx.stroke()
+      }
+    }
 
     def drawCircle(radius: Double, color : String): Unit = {
       ctx.fillStyle = color
