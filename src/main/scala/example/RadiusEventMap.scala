@@ -6,12 +6,10 @@ import scala.collection.mutable
  * Created by ryejoon on 10/1/15.
  */
 object RadiusEventMap extends mutable.HashMap[Int, List[ArcEvent]]{
-  val layers = 10
 
-  def addEvent(event: Event, clockRadius: Int, limitRadianToNormalize: Double):Unit = {
-    val radUnit = clockRadius / layers
-    for (i <- 1 to layers) {
-      val tempRadius = clockRadius - (i * radUnit)
+  def addEvent(event: Event, limitRadianToNormalize: Double):Unit = {
+    for (i <- 1 to ClockRenderer.clockLayers) {
+      val tempRadius = ClockRenderer.clockRadius - (i * ClockRenderer.layerRadiusUnit)
       val tempArc = ClockRenderer.dateToArc(event.dtStart, event.dtEnd, tempRadius)
       if (!isCollide(tempArc, limitRadianToNormalize)) {
         var arcEventList = get(tempRadius).getOrElse(List[ArcEvent]())
@@ -19,9 +17,7 @@ object RadiusEventMap extends mutable.HashMap[Int, List[ArcEvent]]{
         put(tempRadius, arcEventList)
         return
       }
-
     }
-
   }
 
   def isCollide(arc: Arc, limitRadianToNormalize: Double):Boolean = {

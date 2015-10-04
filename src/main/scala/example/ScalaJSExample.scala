@@ -1,6 +1,6 @@
 package example
 
-import org.scalajs.dom.{CanvasRenderingContext2D, html}
+import org.scalajs.dom.{MouseEvent, CanvasRenderingContext2D, html}
 import scala.scalajs.js.annotation.JSExport
 
 
@@ -16,15 +16,16 @@ object ScalaJSExample {
     ClockRenderer.initClockTemplate
     ClockRenderer.drawCurrentTime
 
-    EventDataProvider.eventList.foreach(e => RadiusEventMap.addEvent(e, ClockRenderer.clockRadius, ClockRenderer.limitRadian))
+    EventDataProvider.eventList.foreach(e => RadiusEventMap.addEvent(e, ClockRenderer.limitRadian))
     println(RadiusEventMap.keys)
     RadiusEventMap.values.flatMap(l => l).foreach(ae => ClockRenderer.drawArcEvent(ae))
 
-    /*canvas.addEventListener("click", (t:MouseEvent) => {
-      println("event!" + t.`type` + ":" + t.clientX + "," + t.clientY)
+    canvas.addEventListener("click", (t:MouseEvent) => {
+      val point = ClockEventDetector.getMousePos(canvas, t.clientX.toInt, t.clientY.toInt);
+      ClockRenderer.highlightClockLayer(ClockEventDetector.getNearestLayerRadius(point))
     }, false)
 
-    canvas.addEventListener("mousemove", (t:MouseEvent) => {
+    /*canvas.addEventListener("mousemove", (t:MouseEvent) => {
       println("event!" + t.`type` + ":" + t.clientX + "," + t.clientY)
     }, false)*/
     //dom.setInterval(drawCurrentTime _, 1000)

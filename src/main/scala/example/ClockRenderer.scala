@@ -5,48 +5,11 @@ import org.scalajs.dom._
 import scala.scalajs.js
 import scala.scalajs.js.Date
 
-/**
- * Created by ryejoon on 10/1/15.
- */
-
-case class Point(x: Int, y: Int){
-  def +(p: Point) = Point(x + p.x, y + p.y)
-  def /(d: Int) = Point(x / d, y / d)
-}
-
-case class Arc(startAngle: Double, endAngle: Double, radius: Int) {
-
-  def overlap(that: Arc, limitRadian: Double):Boolean = {
-    println("OverlapCheck :" + this + " vs " + that + ", limitRadian : " + limitRadian)
-    if (this.radius != that.radius) {
-      return false;
-    }
-
-    val normalizedThisStart = this.startAngle - limitRadian
-    val normalizedThisEnd = this.endAngle - limitRadian
-    val normalizedThatStart = that.startAngle - limitRadian
-    val normalizedThatEnd = that.endAngle - limitRadian
-
-    if (normalizedThisStart < normalizedThatEnd && normalizedThatStart < normalizedThisEnd) {
-      return true
-    }
-
-    if (normalizedThatStart < normalizedThisEnd && normalizedThisStart < normalizedThatEnd) {
-      return true
-    }
-
-    return false
-  }
-
-}
-
-case class ArcEvent(arc: Arc, event: Event) {
-
-}
-
 object ClockRenderer {
   val center = Point(500, 300)
+  val clockLayers = 10
   val clockRadius = 200
+  val layerRadiusUnit = clockRadius / clockLayers
   val futureShowHours = 10
   var ctx:CanvasRenderingContext2D = null
   var limitRadian:Double = 0.0
@@ -163,7 +126,6 @@ object ClockRenderer {
     ctx.stroke()
   }
 
-
   def drawEvent(ev: Event): Unit = {
     drawComponent(ev.dtStart, ev.dtEnd, 100 + (Math.random() * 30).toInt)
   }
@@ -182,4 +144,7 @@ object ClockRenderer {
     return hour24
   }
 
+  def highlightClockLayer(radius : Int): Unit = {
+    drawArc(Arc(0, 2 * Math.PI, radius))
+  }
 }
