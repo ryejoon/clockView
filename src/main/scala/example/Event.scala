@@ -5,6 +5,6 @@ import scala.scalajs.js.Date
 /**
  * Created by ryejoon on 10/1/15.
  */
-case class Event(uid: String, summary: String, dtStart: Date, dtEnd: Date) {
+case class Event(uid: String, summary: String, style : String, dtStart: Date, dtEnd: Date) {
 
 }

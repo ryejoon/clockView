@@ -18,16 +18,16 @@ object ScalaJSExample {
 
     EventDataProvider.eventList.foreach(e => RadiusEventMap.addEvent(e, ClockRenderer.limitRadian))
     println(RadiusEventMap.keys)
-    RadiusEventMap.values.flatMap(l => l).foreach(ae => ClockRenderer.drawArcEvent(ae))
+    ClockRenderer.drawEvents()
 
-    canvas.addEventListener("click", (t:MouseEvent) => {
-      val point = ClockEventDetector.getMousePos(canvas, t.clientX.toInt, t.clientY.toInt);
-      ClockRenderer.highlightClockLayer(ClockEventDetector.getNearestLayerRadius(point))
+    canvas.addEventListener("mousemove", (t:MouseEvent) => {
+      ClockRenderer.drawEvents()
+      val canvasPos: Point = ClockEventDetector.getMousePos(canvas, t.clientX.toInt, t.clientY.toInt)
+      val nearestLayerRadius = ClockEventDetector.getNearestLayerRadius(canvasPos);
+      val nearestAe = RadiusEventMap.values.flatMap(l => l).min(Ordering.by((_:ArcEvent).arc.pointDistance(canvasPos - ClockRenderer.center)))
+      ClockRenderer.hightlightArcEvent(nearestAe)
+
     }, false)
-
-    /*canvas.addEventListener("mousemove", (t:MouseEvent) => {
-      println("event!" + t.`type` + ":" + t.clientX + "," + t.clientY)
-    }, false)*/
     //dom.setInterval(drawCurrentTime _, 1000)
 
 

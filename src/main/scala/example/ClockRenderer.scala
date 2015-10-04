@@ -29,6 +29,16 @@ object ClockRenderer {
     (clockHour * Math.PI / 6) + (minute * Math.PI / 360) - (Math.PI / 2)
   }
 
+  def pointToRadian(p : Point): Double = {
+    val circlePos = p - ClockRenderer.center
+    val atan = Math.atan2(circlePos.y, circlePos.x)
+    if (atan < 0) {
+      atan + (2 * Math.PI)
+    } else {
+      atan
+    }
+  }
+
   def drawCurrentTime(): Unit = {
     ctx.beginPath()
 
@@ -83,23 +93,31 @@ object ClockRenderer {
     return Point(center.x + xLength.toInt, center.y + yLength.toInt)
   }
 
-  def drawComponent(from: Date, until: Date, radius : Int): Unit = {
+  def drawComponent(from: Date, until: Date, radius : Int, style : String): Unit = {
     ctx.moveTo(center.x, center.y)
     val arc = dateToArc(from, until, radius)
     ctx.beginPath()
     ctx.arc(center.x, center.y, arc.radius, arc.startAngle, arc.endAngle)
-    ctx.strokeStyle = "blue"
+    ctx.strokeStyle = style
     ctx.lineWidth = 10
     ctx.stroke()
   }
 
-  def drawArc(arc: Arc): Unit = {
+  def drawArc(arc: Arc, style: String): Unit = {
     ctx.moveTo(center.x, center.y)
     ctx.beginPath()
     ctx.arc(center.x, center.y, arc.radius, arc.startAngle, arc.endAngle)
-    ctx.strokeStyle = "blue"
+    ctx.strokeStyle = style
     ctx.lineWidth = 5
     ctx.stroke()
+  }
+
+  def hightlightArcEvent(ae : ArcEvent): Unit = {
+    drawArc(ae.arc, "red")
+    val textPoint = ae.arc.startAsPoint(50) + ClockRenderer.center
+    println(textPoint)
+    ctx.font = "30px Arial";
+    ctx.fillText(ae.event.summary, textPoint.x, textPoint.y, 100);
   }
 
   def initClockTemplate(): Unit = {
@@ -127,11 +145,11 @@ object ClockRenderer {
   }
 
   def drawEvent(ev: Event): Unit = {
-    drawComponent(ev.dtStart, ev.dtEnd, 100 + (Math.random() * 30).toInt)
+    drawComponent(ev.dtStart, ev.dtEnd, 100 + (Math.random() * 30).toInt, ev.style)
   }
 
   def drawArcEvent(ae: ArcEvent): Unit = {
-    drawComponent(ae.event.dtStart, ae.event.dtEnd, ae.arc.radius)
+    drawComponent(ae.event.dtStart, ae.event.dtEnd, ae.arc.radius, ae.event.style)
   }
 
   def toClockHour(hour24: Int): Int = {
@@ -144,7 +162,11 @@ object ClockRenderer {
     return hour24
   }
 
-  def highlightClockLayer(radius : Int): Unit = {
-    drawArc(Arc(0, 2 * Math.PI, radius))
+  def indicateSummary(ae : ArcEvent): Unit = {
+    drawArc(ae.arc, "gray")
+  }
+
+  def drawEvents():Unit = {
+    RadiusEventMap.values.flatMap(l => l).foreach(ae => ClockRenderer.drawArcEvent(ae))
   }
 }
