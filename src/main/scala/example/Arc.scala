@@ -3,17 +3,19 @@ package example
 /**
  * Created by ryejoon on 10/4/15.
  */
-case class Arc(startAngle: Double, endAngle: Double, radius: Int) {
+case class Arc(var startAngle: Double, var endAngle: Double, radius: Int) {
+  startAngle = Radians.normalizeRadian(startAngle)
+  endAngle = Radians.normalizeRadian(endAngle)
 
   def overlap(that: Arc, limitRadian: Double):Boolean = {
     if (this.radius != that.radius) {
       return false;
     }
 
-    val normalizedThisStart = this.startAngle - limitRadian
-    val normalizedThisEnd = this.endAngle - limitRadian
-    val normalizedThatStart = that.startAngle - limitRadian
-    val normalizedThatEnd = that.endAngle - limitRadian
+    val normalizedThisStart = Radians.normalizeRadian(this.startAngle - limitRadian)
+    val normalizedThisEnd = Radians.normalizeRadian(this.endAngle - limitRadian)
+    val normalizedThatStart = Radians.normalizeRadian(that.startAngle - limitRadian)
+    val normalizedThatEnd = Radians.normalizeRadian(that.endAngle - limitRadian)
 
     if (normalizedThisStart < normalizedThatEnd && normalizedThatStart < normalizedThisEnd) {
       return true
@@ -47,4 +49,5 @@ case class Arc(startAngle: Double, endAngle: Double, radius: Int) {
     val startY = Math.sin(startAngle) * resultRadius
     Point(startX.toInt, startY.toInt)
   }
+
 }

@@ -8,7 +8,7 @@ import scala.collection.mutable
 object RadiusEventMap extends mutable.HashMap[Int, List[ArcEvent]]{
 
   def addEvent(event: Event, limitRadianToNormalize: Double):Unit = {
-    val radius = getLayerRadiusList
+    getLayerRadiusList
       .map(r => ClockRenderer.dateToArc(event.dtStart, event.dtEnd, r))
       .find(a => !isCollide(a, limitRadianToNormalize))
       .foreach(a => {

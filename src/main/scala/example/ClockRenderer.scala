@@ -20,8 +20,8 @@ object ClockRenderer {
 
 
   def dateToArc(from : Date, until : Date, radius : Int): Arc = {
-    val fromRadian: Double = normalizeRadian(clockTimeToRadian(toClockHour(from.getHours()), from.getMinutes()))
-    val untilRadian: Double = normalizeRadian(clockTimeToRadian(toClockHour(until.getHours()), until.getMinutes()))
+    val fromRadian: Double = Radians.normalizeRadian(clockTimeToRadian(toClockHour(from.getHours()), from.getMinutes()))
+    val untilRadian: Double = Radians.normalizeRadian(clockTimeToRadian(toClockHour(until.getHours()), until.getMinutes()))
     return Arc(fromRadian, untilRadian, radius)
   }
 
@@ -60,7 +60,7 @@ object ClockRenderer {
 
     ctx.beginPath()
     val clockHour = toClockHour((date.getHours() + futureShowHours) % 12)
-    limitRadian = normalizeRadian(clockTimeToRadian(clockHour, date.getMinutes()))
+    limitRadian = Radians.normalizeRadian(clockTimeToRadian(clockHour, date.getMinutes()))
     val futurePoint = hourToPoint(clockHour, date.getMinutes(), clockRadius)
     ctx.moveTo(center.x, center.y);
     ctx.lineTo(futurePoint.x, futurePoint.y)
@@ -77,11 +77,6 @@ object ClockRenderer {
           ctx.lineTo(secondPoint.x, secondPoint.y)
           ctx.strokeStyle = "red"
           ctx.stroke()*/
-  }
-
-  def normalizeRadian(rad : Double) : Double = {
-    if (rad < 0) return rad + (2 * Math.PI)
-    return rad
   }
 
   def hourToPoint(clockHour : Integer, minute : Integer, radius : Integer): Point = {

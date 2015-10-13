@@ -16,7 +16,7 @@ object ScalaJSExample {
     ClockRenderer.initClockTemplate
     ClockRenderer.drawCurrentTime
 
-    EventDataProvider.eventList.foreach(e => RadiusEventMap.addEvent(e, ClockRenderer.normalizeRadian(ClockRenderer.limitRadian)))
+    EventDataProvider.eventList.foreach(e => RadiusEventMap.addEvent(e, Radians.normalizeRadian(ClockRenderer.limitRadian)))
     println(RadiusEventMap.keys)
     ClockRenderer.drawEvents()
 
