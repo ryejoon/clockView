@@ -10,23 +10,11 @@ object ClockRenderer {
   val clockLayers = 10
   val clockRadius = 200
   val layerRadiusUnit = clockRadius / clockLayers
-  val futureShowHours = 10
   var ctx:CanvasRenderingContext2D = null
   var limitRadian:Double = 0.0
 
   def setContent(ctx : CanvasRenderingContext2D):Unit = {
     this.ctx = ctx
-  }
-
-
-  def dateToArc(from : Date, until : Date, radius : Int): Arc = {
-    val fromRadian: Double = Radians.normalizeRadian(clockTimeToRadian(toClockHour(from.getHours()), from.getMinutes()))
-    val untilRadian: Double = Radians.normalizeRadian(clockTimeToRadian(toClockHour(until.getHours()), until.getMinutes()))
-    return Arc(fromRadian, untilRadian, radius)
-  }
-
-  def clockTimeToRadian(clockHour: Integer, minute: Integer): Double = {
-    (clockHour * Math.PI / 6) + (minute * Math.PI / 360) - (Math.PI / 2)
   }
 
   def pointToRadian(p : Point): Double = {
@@ -59,8 +47,8 @@ object ClockRenderer {
     ctx.stroke()
 
     ctx.beginPath()
-    val clockHour = toClockHour((date.getHours() + futureShowHours) % 12)
-    limitRadian = Radians.normalizeRadian(clockTimeToRadian(clockHour, date.getMinutes()))
+    val clockHour = Clocks.toClockHour((date.getHours() + TimeManager.futureShowHours) % 12)
+    limitRadian = Radians.normalizeRadian(Radians.clockTimeToRadian(clockHour, date.getMinutes()))
     val futurePoint = hourToPoint(clockHour, date.getMinutes(), clockRadius)
     ctx.moveTo(center.x, center.y);
     ctx.lineTo(futurePoint.x, futurePoint.y)
@@ -80,7 +68,7 @@ object ClockRenderer {
   }
 
   def hourToPoint(clockHour : Integer, minute : Integer, radius : Integer): Point = {
-    val piPos = clockTimeToRadian(clockHour, minute)
+    val piPos = Radians.clockTimeToRadian(clockHour, minute)
     val xLength = radius * Math.cos(piPos)
     val yLength = radius * Math.sin(piPos)
     return Point(center.x + xLength.toInt, center.y + yLength.toInt)
@@ -95,7 +83,7 @@ object ClockRenderer {
 
   def drawComponent(from: Date, until: Date, radius : Int, style : String): Unit = {
     ctx.moveTo(center.x, center.y)
-    val arc = dateToArc(from, until, radius)
+    val arc = Arc.of(from, until, radius)
     ctx.beginPath()
     ctx.arc(center.x, center.y, arc.radius, arc.startAngle, arc.endAngle)
     ctx.strokeStyle = style
@@ -115,7 +103,6 @@ object ClockRenderer {
   def hightlightArcEvent(ae : ArcEvent): Unit = {
     drawArc(ae.arc, "red")
     val textPoint = ae.arc.startAsPoint(50) + ClockRenderer.center
-    println(textPoint)
     ctx.font = "20px Arial";
     ctx.fillText(ae.event.summary, textPoint.x, textPoint.y, 100);
   }
@@ -151,22 +138,14 @@ object ClockRenderer {
     drawComponent(ae.event.dtStart, ae.event.dtEnd, ae.arc.radius, ae.event.style)
   }
 
-  def toClockHour(hour24: Int): Int = {
-    if (hour24 > 12) {
-      return hour24 - 12
-    }
-    if (hour24 < 1) {
-      return hour24 + 12
-    }
-    return hour24
-  }
-
   def indicateSummary(ae : ArcEvent): Unit = {
     drawArc(ae.arc, "gray")
   }
 
   def drawEvents():Unit = {
-    RadiusEventMap.values.flatMap(l => l).foreach(ae => ClockRenderer.drawArcEvent(ae))
+    RadiusArcEventMap.values.flatMap(l => l)
+      .map(ae => TimeManager.cropArcEventToClockHour(ae))
+      .filter(ae => !ae.isEmpty).foreach(ae => ClockRenderer.drawArcEvent(ae.get))
   }
 
   def clearCanvas():Unit = {

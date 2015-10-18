@@ -1,8 +1,23 @@
 package example
 
+import scala.scalajs.js.Date
+
 /**
  * Created by ryejoon on 10/4/15.
  */
+object Arc {
+
+  def of(from : Date, until : Date, radius : Int): Arc = {
+    val fromRadian: Double = dateToNormalizedRadian(from)
+    val untilRadian: Double = dateToNormalizedRadian(until)
+    return Arc(fromRadian, untilRadian, radius)
+  }
+
+  def dateToNormalizedRadian(from: Date): Double = {
+    Radians.normalizeRadian(Radians.clockTimeToRadian(Clocks.toClockHour(from.getHours()), from.getMinutes()))
+  }
+}
+
 case class Arc(var startAngle: Double, var endAngle: Double, radius: Int) {
   startAngle = Radians.normalizeRadian(startAngle)
   endAngle = Radians.normalizeRadian(endAngle)
@@ -49,5 +64,4 @@ case class Arc(var startAngle: Double, var endAngle: Double, radius: Int) {
     val startY = Math.sin(startAngle) * resultRadius
     Point(startX.toInt, startY.toInt)
   }
-
 }

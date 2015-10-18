@@ -10,19 +10,19 @@ import utest._
  */
 object RadiusEventMap$Test extends TestSuite {
 
-  RadiusEventMap.addEvent(
+  RadiusArcEventMap.addEvent(
     Event("TEST_UID", "제목123", "blue", new Date(2015, 10, 1, 15, 0, 0, 0), new Date(2015, 10, 1, 16, 0, 0, 0)), 0)
 
   def tests = TestSuite {
 
     'DetectCollision {
-      val outerRadius = RadiusEventMap.getLayerRadiusList()(0)
-      assert(RadiusEventMap.isCollide(Arc(0, 0.5 * Math.PI, outerRadius), 0) == true)
+      val outerRadius = RadiusArcEventMap.getLayerRadiusList()(0)
+      assert(RadiusArcEventMap.isCollide(Arc(0, 0.5 * Math.PI, outerRadius), 0) == true)
     }
 
     'DetectNonCollision {
-      val innerRadius = RadiusEventMap.getLayerRadiusList()(1)
-      assert(RadiusEventMap.isCollide(Arc(0, 0.5 * Math.PI, innerRadius), 0) == false)
+      val innerRadius = RadiusArcEventMap.getLayerRadiusList()(1)
+      assert(RadiusArcEventMap.isCollide(Arc(0, 0.5 * Math.PI, innerRadius), 0) == false)
     }
   }
 

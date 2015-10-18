@@ -16,8 +16,10 @@ object ScalaJSExample {
     ClockRenderer.initClockTemplate
     ClockRenderer.drawCurrentTime
 
-    EventDataProvider.eventList.foreach(e => RadiusEventMap.addEvent(e, Radians.normalizeRadian(ClockRenderer.limitRadian)))
-    println(RadiusEventMap.keys)
+    EventDataProvider.eventList
+      .foreach(e => RadiusArcEventMap.addEvent(e, Radians.normalizeRadian(ClockRenderer.limitRadian)))
+
+    println(RadiusArcEventMap)
     ClockRenderer.drawEvents()
 
     canvas.addEventListener("mousemove", (t:MouseEvent) => {
@@ -28,10 +30,12 @@ object ScalaJSExample {
       val canvasPos: Point = ClockEventDetector.getMousePos(canvas, t.clientX.toInt, t.clientY.toInt)
       val nearestLayerRadius = ClockEventDetector.getNearestLayerRadius(canvasPos);
       val pointRadius = ClockRenderer.pointToRadian(canvasPos)
-      val nearestAe = RadiusEventMap.get(nearestLayerRadius).getOrElse(List()).min(Ordering.by((_:ArcEvent).arc.radianDistance(pointRadius)))
-      //val nearestAe = RadiusEventMap.values.flatMap(l => l).min(Ordering.by((_:ArcEvent).arc.pointDistance(canvasPos - ClockRenderer.center)))
-      ClockRenderer.hightlightArcEvent(nearestAe)
-
+      val learestEvents: List[ArcEvent] = RadiusArcEventMap.get(nearestLayerRadius).getOrElse(List())
+      if (learestEvents.length > 0) {
+        val nearestAe = learestEvents.min(Ordering.by((_:ArcEvent).arc.radianDistance(pointRadius)))
+        //val nearestAe = RadiusEventMap.values.flatMap(l => l).min(Ordering.by((_:ArcEvent).arc.pointDistance(canvasPos - ClockRenderer.center)))
+        ClockRenderer.hightlightArcEvent(nearestAe)
+      }
     }, false)
     //dom.setInterval(drawCurrentTime _, 1000)
 

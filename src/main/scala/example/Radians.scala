@@ -12,7 +12,7 @@ object Radians {
         while (!isNormalized(result)) result = radian + (2 * Math.PI)
         return result
       }
-      case _ if radian > 2 * Math.PI => {
+      case _ if radian >= 2 * Math.PI => {
         var result = radian
         while (!isNormalized(result)) result = radian - (2 * Math.PI)
         return result
@@ -22,5 +22,9 @@ object Radians {
 
   def isNormalized(radian: Double): Boolean = {
     radian >= 0 && radian < 2 * Math.PI
+  }
+
+  def clockTimeToRadian(clockHour: Integer, minute: Integer): Double = {
+    (clockHour * Math.PI / 6) + (minute * Math.PI / 360) - (Math.PI / 2)
   }
 }
