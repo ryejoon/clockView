@@ -33,18 +33,17 @@ object TimeManager {
   def getCurrentMinute() {currentDateTime.getMinutes()}
 
   def cropArcEventToClockHour(arcEvent : ArcEvent): Option[ArcEvent] = {
-    if (arcEvent == null || nothingToDraw(arcEvent)) {
+    if (arcEvent == null || nothingToDraw(arcEvent.event)) {
       return Option.empty
     }
 
     val arcToDraw: Arc = Arc.of(cropToClockTime(arcEvent.event.dtStart), cropToClockTime(arcEvent.event.dtEnd), arcEvent.arc.radius)
-    println("Arc to draw : " + arcToDraw)
     return Some(ArcEvent(arcToDraw, arcEvent.event))
   }
 
-  def nothingToDraw(arcEvent: ArcEvent): Boolean = {
-    if (cropToClockTime(arcEvent.event.dtStart).getTime() > arcEvent.event.dtEnd.getTime() ||
-      cropToClockTime(arcEvent.event.dtEnd).getTime() < arcEvent.event.dtStart.getTime()) {
+  def nothingToDraw(event: Event): Boolean = {
+    if (cropToClockTime(event.dtStart).getTime() > event.dtEnd.getTime() ||
+      cropToClockTime(event.dtEnd).getTime() < event.dtStart.getTime()) {
       return true
     }
     return false

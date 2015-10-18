@@ -9,7 +9,7 @@ object RadiusArcEventMap extends mutable.HashMap[Int, List[ArcEvent]]{
 
   def addEvent(event: Event, limitRadianToNormalize: Double):Unit = {
     getLayerRadiusList
-      .map(r => Arc.of(event.dtStart, event.dtEnd, r))
+      .map(r => Arc.of(TimeManager.cropToClockTime(event.dtStart), TimeManager.cropToClockTime(event.dtEnd), r))
       .find(a => !isCollide(a, limitRadianToNormalize))
       .foreach(a => {
         var arcEventList = get(a.radius).getOrElse(List[ArcEvent]())

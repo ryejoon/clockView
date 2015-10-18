@@ -17,6 +17,7 @@ object ScalaJSExample {
     ClockRenderer.drawCurrentTime
 
     EventDataProvider.eventList
+      .filter(e => !TimeManager.nothingToDraw(e))
       .foreach(e => RadiusArcEventMap.addEvent(e, Radians.normalizeRadian(ClockRenderer.limitRadian)))
 
     println(RadiusArcEventMap)
